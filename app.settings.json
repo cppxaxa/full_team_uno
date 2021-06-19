@@ -1,5 +1,5 @@
 {
-    "redis_host": "redis-11971.c251.east-us-mz.azure.cloud.redislabs.com",
-    "redis_port": 11971,
-    "redis_password": "XavyP1tgVX3cFBBrlPng9Htbcyw6GT8v"
+    "redis_host": "localhost",
+    "redis_port": 6379,
+    "redis_password": ""
 }
