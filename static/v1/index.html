@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Full team UNO</title>
+        <link rel="stylesheet" href="css/styles.css"></link>
+        <script src="js/jquery/jquery-3.6.0.min.js"></script>
+        <script src="js/main.js"></script>
+    </head>
+    <body>
+
+        Username <input id="txtUsername" />
+        <input id="btnLogin" type="button" value="Login" />
+        <br/><br/>
+        Game Rooms
+        <input id="btnCreateGameRoom" type="button" value="Create game room" />
+        <br/><br/>
+        Join game room <input id="txtGameRoomName" />
+        <input id="btnLoadGameRoom" type="button" value="Join" />
+        <p id="txtGameRooms">
+            <input id="btnGameRoom001" type="button" value="GR001" />
+        </p>
+        <br/>
+        Participants
+        <p id="txtParticipants">
+            username001, username002
+        </p>
+        Game status <span id="txtGameStatus">NOT STARTED/RUNNING/ENDED</span>
+        <br/>
+        Game winners <span id="txtGameWinners">N/A, username001, username002, username003</span>
+        <br/>
+        Game id <span id="txtGameId">#001/NOT ASSIGNED</span>
+        <br/>
+        <input id="btnStartGame" type="button" value="Start Game" />
+        <br/><br/>
+        Participants Sequence
+        <p id="txtParticipantsSequence">
+            <span style="color: red;">(username001)</span> -> (username002)
+        </p>
+        <br/>
+        User cards
+        <br/>
+        <div style="width: 100%;">
+            <div class="card-des card-r">0</div>
+            <div class="card-des card-g">0</div>
+            <div class="card-des card-b">0</div>
+            <div class="card-des card-y">0</div>
+            <div class="card-des card-w">0</div>
+        </div>
+        <br/><br/>
+    </body>
+</html>

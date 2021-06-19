@@ -1,0 +1,29 @@
+.card-des {
+    width: 10px;
+    height: 10px;
+    padding: 25px;
+    float: left;
+    margin: 5px;
+}
+
+.card-r {
+    background: rgb(255, 98, 98);
+}
+
+.card-g {
+    background: rgb(54, 255, 47);
+}
+
+.card-b {
+    background: lightskyblue;
+}
+
+.card-y {
+    background: yellow;
+}
+
+.card-w {
+    background: black;
+    color: white;
+}
+
