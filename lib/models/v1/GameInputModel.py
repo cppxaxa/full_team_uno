@@ -9,3 +9,4 @@ class GameInputModel(BaseModel):
     game_id: Optional[str] = ""
     plays_card: Optional[CardModel] = None
     declares_last_card: Optional[bool] = False
+    change_color_to: Optional[str] = ''

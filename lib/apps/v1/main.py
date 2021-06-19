@@ -72,3 +72,18 @@ def create_game_room(payload: UsernameModel):
     # TODO Finish this implementation
     return "OK"
 
+@mainApp.post("/api/v1/gamerooms/{gameroom_name}/start")
+def start_game_room(payload: UsernameModel):
+    # TODO Finish this implementation
+    return "OK"
+
+@mainApp.post("/api/v1/gamerooms/{gameroom_name}/stop")
+def stop_game_room(payload: UsernameModel):
+    # TODO Finish this implementation
+    return "OK"
+
+@mainApp.get("/api/v1/games")
+def get_games(payload: UsernameModel):
+    # TODO Finish this implementation
+    return "OK"
+

@@ -7,6 +7,7 @@ from typing import Optional
 class GameModel(BaseModel):
     game_id: Optional[str] = ""
     whose_turn_index: Optional[int] = -1
+    current_color: Optional[str] = ''
     forward_direction: Optional[bool] = True
     deck_count: Optional[int] = -1
     game_ended: Optional[bool] = True
