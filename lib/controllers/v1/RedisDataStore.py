@@ -1,4 +1,5 @@
 
+from lib.models.v1.GameModel import GameModel
 from lib.models.v1.GameRoomModel import GameRoomModel
 from lib.models.v1.UserModel import UserModel
 from lib.controllers.v1.BaseDataStore import BaseDataStore
@@ -17,24 +18,30 @@ class RedisDataStore(BaseDataStore):
                                 password=self.config["redis_password"])
 
     def get_game_model(self, game_id):
-        pass
+        key = self.get_key('uno', 'global', 'game', game_id)
+        val = self.r.get(key)
+        if val is not None:
+            return GameModel.parse_obj(json.loads(val.decode('UTF-8')))
+        return val
     
     def get_game_room_model(self, username, name):
         key = self.get_key('uno', username, 'gameroom', name)
         val = self.r.get(key)
         if val is not None:
-            return json.loads(val.decode('UTF-8'))
+            return GameRoomModel.parse_obj(json.loads(val.decode('UTF-8')))
         return val
 
     def get_user_model(self, username):
         key = self.get_key('uno', 'admin', 'user', username)
         val = self.r.get(key)
         if val is not None:
-            return json.loads(val.decode('UTF-8'))
+            return UserModel.parse_obj(json.loads(val.decode('UTF-8')))
         return val
 
     def set_game_model(self, game_model):
-        pass
+        key = self.get_key('uno', 'global', 'game', game_model.game_id)
+        value = game_model.json()
+        return self.r.set(key, value)
     
     def set_game_room_model(self, game_room: GameRoomModel):
         key = self.get_key('uno', game_room.created_by, 'gameroom', game_room.name)

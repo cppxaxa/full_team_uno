@@ -103,14 +103,19 @@ def remove_user_from_game_room(username: str, gameroom_name: str, payload: Usern
         return "OK"
     return error
 
-@mainApp.post("/api/v1/gamerooms/{gameroom_name}/start")
-def start_game_room(gameroom_name: str, payload: StartGameRequestModel):
+@mainApp.post("/api/v1/{username}/gamerooms/{gameroom_name}/start")
+def start_game_room(username: str, gameroom_name: str, payload: StartGameRequestModel):
     data_store = getDataStore()
     gameModel = GameModel()
-    gameRoom = data_store.get_game_room_model(gameroom_name)
+    gameRoom = data_store.get_game_room_model(username=username, name=gameroom_name)
     gameModel.initialize(gameRoom, payload.deck_count)
     data_store.set_game_model(gameModel)
     return data_store.get_game_model(gameModel.game_id)
+
+@mainApp.post("/api/v1/games/{game_id}/updategameroom")
+def update_game_with_updated_gameroom(game_id: str):
+    # TODO Finish this implementation - Re-align the game by add and remove players
+    return "NotImplemented"
 
 @mainApp.post("/api/v1/games/{game_id}/stop")
 def stop_game(game_id: str):
