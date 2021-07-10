@@ -60,11 +60,6 @@ def post_process(gameInput: GameInputModel):
     
     return data_store.get_game_model(gameInput.game_id)
 
-@mainApp.get("/api/v1/gamemodel/{game_id}")
-def get_game_model(game_id: str):
-    data_store = getDataStore()
-    return data_store.get_game_model(game_id)
-
 @mainApp.get("/api/v1/gamerooms")
 def get_game_rooms():
     data_store = getDataStore()
@@ -75,13 +70,18 @@ def get_game_rooms(username: str):
     data_store = getDataStore()
     return data_store.get_game_rooms_by_username(username)
 
+@mainApp.get("/api/v1/{username}/gamerooms/{gameroom_name}")
+def get_game_rooms(username: str, gameroom_name: str):
+    data_store = getDataStore()
+    return data_store.get_game_rooms_by_username_and_name(username, gameroom_name)
+
 @mainApp.post("/api/v1/{username}/gamerooms")
 def create_game_room(username: str, payload: CreateGameRoomModel):
     game_room = GameRoomModel(name=payload.gameroom_name, \
         created_by=username, password=payload.password, participants=[])
     data_store = getDataStore()
     usermodel = data_store.get_user_model(username)
-    success = usermodel["passcode"] == payload.password
+    success = usermodel.passcode == payload.password
     success = success and data_store.set_game_room_model(game_room)
     if success:
         return data_store.get_game_room_model(username, payload.gameroom_name)
@@ -111,6 +111,11 @@ def start_game_room(username: str, gameroom_name: str, payload: StartGameRequest
     gameModel.initialize(gameRoom, payload.deck_count)
     data_store.set_game_model(gameModel)
     return data_store.get_game_model(gameModel.game_id)
+
+@mainApp.get("/api/v1/games/{game_id}")
+def get_game_model(game_id: str):
+    data_store = getDataStore()
+    return data_store.get_game_model(game_id)
 
 @mainApp.post("/api/v1/games/{game_id}/updategameroom")
 def update_game_with_updated_gameroom(game_id: str):

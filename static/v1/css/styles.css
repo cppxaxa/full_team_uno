@@ -1,3 +1,8 @@
+body {
+    font-family: sans-serif, Helvetica, Arial;
+    font-size: small;
+}
+
 .card-des {
     width: 10px;
     height: 10px;

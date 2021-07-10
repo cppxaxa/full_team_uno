@@ -7,29 +7,47 @@
     </head>
     <body>
 
-        Username <input id="txtUsername" />
+        Username <input id="txtUsername" value="cppx@beta" />
         <input id="btnLogin" type="button" value="Login" />
+        <input id="btnToggleAdmin" type="button" value="Toggle admin" />
         <br/><br/>
-        Game Rooms
-        <input id="btnCreateGameRoom" type="button" value="Create game room" />
-        <br/><br/>
-        Join game room <input id="txtGameRoomName" />
+        <div class="adminBlock">
+            Game Rooms 
+            <br/>
+            <input id="txtCreateGameRoom" value="GR001" placeholder="Gameroom name" />
+            <input id="txtCreateGameRoomPasscode" value="1234" placeholder="Gameroom passcode" />
+            <input id="btnCreateGameRoom" type="button" value="Create game room" />
+            <br/><br/>
+        </div>
+        Join game room 
+        <br/>
+        <input id="txtLoadGameRoomOwner" placeholder="owner id" value="cppx@beta" />
+        <input id="txtLoadGameRoomName" placeholder="gameroom name" value="GR001" />
+        <input id="txtLoadGameRoomPasscode" placeholder="gameroom passcode" value="1234" />
         <input id="btnLoadGameRoom" type="button" value="Join" />
-        <p id="txtGameRooms">
+        <!-- <p id="txtGameRooms">
             <input id="btnGameRoom001" type="button" value="GR001" />
+        </p> -->
+        <br/><br/>
+        Participants <input id="btnRefreshGameRoom" type="button" value="Refresh" />
+        <p id="txtParticipants">
+            &nbsp;
         </p>
         <br/>
-        Participants
-        <p id="txtParticipants">
-            username001, username002
-        </p>
+        <div class="adminBlock">
+            <input id="txtDeckCount" placeholder="deck count" value="2" />
+            <input id="btnStartGame" type="button" value="Start Game" />
+        </div>
+        <br/>
+        <input id="txtGameId" placeholder="game id" value="123456789012345" />
+        <input id="btnJoinGame" type="button" value="Join Game" />
+        <br/><br/>
         Game status <span id="txtGameStatus">NOT STARTED/RUNNING/ENDED</span>
         <br/>
         Game winners <span id="txtGameWinners">N/A, username001, username002, username003</span>
         <br/>
         Game id <span id="txtGameId">#001/NOT ASSIGNED</span>
-        <br/>
-        <input id="btnStartGame" type="button" value="Start Game" />
+        
         <br/><br/>
         Participants Sequence
         <p id="txtParticipantsSequence">

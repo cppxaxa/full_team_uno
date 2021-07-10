@@ -1,4 +1,5 @@
 
+from lib.models.v1.GameRoomModel import GameRoomModel
 from lib.models.v1.DeckModel import DeckModel
 from pydantic import BaseModel
 
@@ -18,14 +19,16 @@ class GameModel(BaseModel):
     participants_id_cards_map: Optional[dict] = {}
     game_room_name: Optional[str] = ''
     game_room_owner: Optional[str] = ''
-    cards_used_map: Optional[dict] = {}
+    cards_sequence: Optional[list] = []
+    cards_uid_index_map: Optional[dict] = {}
+    cards_uid_used_map: Optional[dict] = {}
     cards_played_list: Optional[list] = []
     winner_id_list: Optional[list] = []
     last_card_people: Optional[dict] = {}
 
 # TODO Validation req. Finish this implementation
 
-    def initialize(self, game_room, deck_count):
+    def initialize(self, game_room: GameRoomModel, deck_count):
         self.game_id = self.id_generator()
         self.game_room_name = game_room.name
         self.game_room_owner = game_room.created_by
@@ -40,11 +43,13 @@ class GameModel(BaseModel):
         
         deck = DeckModel()
         deck.populate(deck_count)
-        self.cards_used_map = {}
-        for card in deck.cards:
-            self.cards_used_map[card] = False
+        self.cards_sequence = []
+        for idx, card in enumerate(deck.cards):
+            self.cards_sequence.append(card)
+            self.cards_uid_used_map[card.unique_id] = False
+            self.cards_uid_index_map[card.unique_id] = idx
         
-        self.assign_cards(game_room.participants, self.cards_used_map)
+        self.assign_cards(game_room.participants, self.cards_uid_used_map)
 
         
     # TODO Fix this
@@ -57,16 +62,16 @@ class GameModel(BaseModel):
             self.participants_id_index_map[username] = idx
             self.participants_index_id_map[idx] = username
     
-    def assign_cards(self, participants_id_list, cards_used_map, card_count=7):
-        card_list = [card for card in cards_used_map if cards_used_map[card] == False]
-        total_card_count = len(card_list)
+    def assign_cards(self, participants_id_list, cards_uid_used_map, card_count=7):
+        card_uid_list = [uid for uid in cards_uid_used_map if cards_uid_used_map[uid] == False]
+        total_card_count = len(card_uid_list)
         cards_distributed_to_participants = []
         for id in participants_id_list:
             self.participants_id_cards_map[id] = []
             for i in range(card_count):
-                if len(card_list) == 0: raise("Insufficient unused cards in deck, participant=" + str(id) + ", total_cards=" + str(total_card_count) + ", cards_distributed_to_participants=" + str(cards_distributed_to_participants))
-                card = random.choice(card_list)
-                self.participants_id_cards_map[id].append(card)
-                cards_used_map[card] = True
-                card_list.remove(card)
+                if len(card_uid_list) == 0: raise("Insufficient unused cards in deck, participant=" + str(id) + ", total_cards=" + str(total_card_count) + ", cards_distributed_to_participants=" + str(cards_distributed_to_participants))
+                card_uid = random.choice(card_uid_list)
+                self.participants_id_cards_map[id].append(card_uid)
+                cards_uid_used_map[card_uid] = True
+                card_uid_list.remove(card_uid)
             cards_distributed_to_participants.append(id)

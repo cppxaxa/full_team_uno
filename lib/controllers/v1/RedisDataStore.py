@@ -71,6 +71,13 @@ class RedisDataStore(BaseDataStore):
             response[key.decode('UTF-8').split('/')[-1]] = obj
         return response
     
+    def get_game_rooms_by_username_and_name(self, username, gameroom_name):
+        key = self.get_key('uno', username, 'gameroom', gameroom_name)
+        val = self.r.get(key)
+        if val is not None:
+            return GameRoomModel.parse_obj(json.loads(val.decode('UTF-8')))
+        return val
+    
     def add_user_to_game_room(self, username, gameroom_name, param_username):
         param_usermodel = self.get_user_model(param_username)
         if param_usermodel is None:
