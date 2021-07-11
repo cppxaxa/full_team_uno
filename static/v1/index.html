@@ -6,7 +6,8 @@
         <script src="js/main.js"></script>
     </head>
     <body>
-
+        Ongoing calls <span id="txtOngoingCallCount">0</span>
+        <br/><br/>
         Username <input id="txtUsername" value="cppx@beta" />
         <input id="btnLogin" type="button" value="Login" />
         <input id="btnToggleAdmin" type="button" value="Toggle admin" />
@@ -33,30 +34,41 @@
         <p id="txtParticipants">
             &nbsp;
         </p>
-        <br/>
         <div class="adminBlock">
             <input id="txtDeckCount" placeholder="deck count" value="2" />
             <input id="btnStartGame" type="button" value="Start Game" />
         </div>
         <br/>
-        <input id="txtGameId" placeholder="game id" value="123456789012345" />
+        Game id <input id="txtGameId" placeholder="game id" value="123456789012345" />
         <input id="btnJoinGame" type="button" value="Join Game" />
         <br/><br/>
-        Game status <span id="txtGameStatus">NOT STARTED/RUNNING/ENDED</span>
+        Game status <span id="txtGameStatus"><!-- NOT STARTED/RUNNING/ENDED --></span>
         <br/>
-        Game winners <span id="txtGameWinners">N/A, username001, username002, username003</span>
+        Deck count <span id="txtGameDeckCount"><!-- NOT STARTED/RUNNING/ENDED --></span>
         <br/>
-        Game id <span id="txtGameId">#001/NOT ASSIGNED</span>
+        Users with last card <span id="txtUsersWithLastCard"><!-- NOT STARTED/RUNNING/ENDED --></span>
+        <br/>
+        Game winners <span id="txtGameWinners"><!-- N/A, username001, username002, username003 --></span>
         
         <br/><br/>
         Participants Sequence
         <p id="txtParticipantsSequence">
-            <span style="color: red;">(username001)</span> -> (username002)
+            <!-- <span style="color: red;">(username001)</span> -> (username002) -->
         </p>
         <br/>
-        User cards
+        Current color <span id="txtCurrentColor"><span style="background: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+        <br/><br/>
+        User cards <input id="btnCallLastCard" type="button" value="Call Last Card" />
         <br/>
-        <div style="width: 100%;">
+        New color choice for wild cards 
+        <select id="selectNewColor">
+            <option value="r">Red</option>
+            <option value="b">Blue</option>
+            <option value="y">Yellow</option>
+            <option value="g">Green</option>
+        </select>
+        <br/>
+        <div id="divUserCardList" style="width: 100%;">
             <div class="card-des card-r">0</div>
             <div class="card-des card-g">0</div>
             <div class="card-des card-b">0</div>

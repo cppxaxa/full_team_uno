@@ -4,14 +4,17 @@ var Api_Url = window.location.origin;
 function get(url, callbackSuccess, callbackError) {
     complete_url = Api_Url + url;
 
+    incrOngoingCallCount();
     $.get(complete_url, function(data) {
         console.log("[INFO] get", complete_url, data);
+        decrOngoingCallCount();
         if (callbackSuccess) {
             callbackSuccess(data);
         }
     })
     .fail(function() {
         console.log("[ERROR] get", complete_url);
+        decrOngoingCallCount();
         if (callbackError) {
             callbackError("");
         }
@@ -22,6 +25,7 @@ function post(url, inputData, callbackSuccess, callbackError) {
     complete_url = Api_Url + url;
     payload = JSON.stringify(inputData);
 
+    incrOngoingCallCount();
     $.ajax({
         type: "post",
         url: complete_url,
@@ -29,25 +33,67 @@ function post(url, inputData, callbackSuccess, callbackError) {
         contentType: "application/json",  
         dataType: 'json', 
         success: function(data) {
+            decrOngoingCallCount();
             if (data != null) {
-                console.log("[INFO] post", complete_url, data);
+                console.log("[INFO] post", complete_url, inputData, "response:", data);
                 if (callbackSuccess) {
                     callbackSuccess(data);
                 }
             }
             else {
-                console.log("[ERROR] post", complete_url);
+                console.log("[ERROR] post", complete_url, inputData);
                 if (callbackError) {
                     callbackError("");
                 }
             }
         },
         fail: function(err) {
-            console.log("[ERROR] post", complete_url);
+            decrOngoingCallCount();
+            console.log("[ERROR] post", complete_url, inputData);
             if (callbackError) {
                 callbackError(err);
             }
         }
+    });
+}
+
+var dopostqueue = $({});
+function sequentialPost(url, payload, callback)
+{
+    dopostqueue.queue(function()
+    {
+        $.ajax(
+        {   
+            type: 'POST',
+            url: Api_Url + url,
+            datatype: 'json',
+            data: JSON.stringify(payload),
+            success: function(result) 
+            {
+                console.log("[INFO] sequential post", Api_Url + url, payload, "response:", result);
+                dopostqueue.dequeue();
+                callback(result);
+            }
+        })
+    });
+}
+
+var dogetqueue = $({});
+function sequentialGet(url, callback)
+{
+    dogetqueue.queue(function()
+    {
+        $.ajax(
+        {   
+            type: 'GET',
+            url: Api_Url + url,
+            success: function(result) 
+            {
+                console.log("[INFO] sequential get", (Api_Url + url), "response:", result);
+                dogetqueue.dequeue();
+                callback(result);
+            }
+        })
     });
 }
 
@@ -69,6 +115,146 @@ function toggleAdmin() {
         $(".adminBlock").hide();
     }
 }
+
+
+function updateGameStatus(status) {
+    $("#txtGameStatus").html(status);
+}
+
+function updateGameWinners(winner_list) {
+    $("#txtGameWinners").html(winner_list.length > 0 ? winner_list.join(", ") : "N/A");
+}
+
+function updateGameParticipantSequence(participants_index_id_map, whose_turn_index, forward_direction) {
+    var activePlayerTemplate = '<span style="color: red;">({{username}})</span>';
+    var normalPlayerTemplate = "{{username}}";
+
+    var tagsList = [];
+    for (var participantIdx in participants_index_id_map) {
+        var val = normalPlayerTemplate;
+        if (whose_turn_index == participantIdx) {
+            val = activePlayerTemplate;
+        }
+        val = val.replace("{{username}}", participants_index_id_map[participantIdx]);
+        tagsList.push(val);
+    }
+
+    $("#txtParticipantsSequence").html(forward_direction ? tagsList.join(" -> ") : tagsList.join(" <- "));
+}
+
+function updateGameCurrentColor(color) {
+    var r = '<span style="background: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    var g = '<span style="background: green;">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    var b = '<span style="background: blue;">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    var y = '<span style="background: yellow;">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+
+    if (color == 'r') {
+        $("#txtCurrentColor").html(r);
+    }
+    else if (color == 'g') {
+        $("#txtCurrentColor").html(g);
+    }
+    else if (color == 'b') {
+        $("#txtCurrentColor").html(b);
+    }
+    else if (color == 'y') {
+        $("#txtCurrentColor").html(y);
+    }
+}
+
+
+// TODO Specify change color to 
+
+function getGameColorChoice() {
+    return $("#selectNewColor").val();
+}
+
+function cardCallback(unique_id, is_wild) {
+    var change_color_to = "";
+    if (is_wild) {
+        var result = confirm("Are you sure with color choice: " + getGameColorChoice());
+        if (result) {
+            change_color_to = getGameColorChoice();
+        }
+        else {
+            return;
+        }
+    }
+
+    post("/api/v1/games/" + getGameIdToJoinGame() + "/process", {
+        "username": getUsernameForLogin(),
+        "plays_card_uid": unique_id,
+        "declares_last_card": false,
+        "change_color_to": change_color_to
+    }, function(data) {
+        alert("Card played successfully ");
+    }, function(err) {
+        alert("Card playing failed " + err);
+    });
+}
+
+function callLastCard() {
+    post("/api/v1/games/" + getGameIdToJoinGame() + "/process", {
+        "username": getUsernameForLogin(),
+        "plays_card_uid": "",
+        "declares_last_card": true,
+        "change_color_to": ""
+    }, function(data) {
+        alert("Calling last card success ");
+    }, function(err) {
+        alert("Calling last card failed " + err);
+    });
+}
+
+function updateGameCard(cards_sequence, cards_uid_index_map, user_card_uid_list) {
+    var cardTemplate = '<div class="card-des card-{{color}}" card-id="{{card-id}}" onclick="cardCallback(\'{{card-id}}\', {{is-wild}});">{{text}}</div>';
+    var tagList = [];
+    var userCards = [];
+    for (var card_uid of user_card_uid_list) {
+        var idx = cards_uid_index_map[card_uid];
+        var card = cards_sequence[idx];
+        userCards.push(card);
+
+        var number = card.number.toString();
+        if (card.is_draw_2) number = "+2";
+        if (card.is_draw_4) number = "+4";
+        if (card.is_reverse) number = "rev- erse";
+        if (card.is_skip) number = "skip";
+        if (number == "-1") number = "chg. color";
+        
+        var color = card.is_wild ? "w" : card.color;
+        var val = cardTemplate.replace("{{color}}", color).replace("{{text}}", number);
+        val = val.replace("{{card-id}}", card.unique_id);
+        val = val.replace("{{card-id}}", card.unique_id);
+        val = val.replace("{{is-wild}}", card.is_wild.toString());
+        tagList.push(val);
+    }
+    $("#divUserCardList").html(tagList.join(""));
+    console.log("User cards", userCards);
+}
+
+function updateGameDeckCount(deck_count) {
+    $("#txtGameDeckCount").html(deck_count);
+}
+
+function updateUsersWithLastCard(last_card_people_map) {
+    var userlist = [];
+    for (var uid in last_card_people_map)
+        userlist.push(uid);
+    $("#txtUsersWithLastCard").html(userlist.length > 0 ? userlist.join(", ") : "N/A");
+}
+
+function updateGameModel(gameModel) {
+    updateGameStatus(gameModel.game_ended ? "FINISHED": "UNFINISHED");
+    updateGameWinners(gameModel.winner_id_list);
+    updateGameParticipantSequence(gameModel.participants_index_id_map, gameModel.whose_turn_index, gameModel.forward_direction);
+    updateGameCurrentColor(gameModel.current_color);
+    updateGameCard(gameModel.cards_sequence, gameModel.cards_uid_index_map, gameModel.participants_id_cards_map[getUsernameForLogin()]);
+    updateGameDeckCount(gameModel.deck_count);
+    updateUsersWithLastCard(gameModel.last_card_people_map);
+}
+
+
 
 function getUsernameForLogin() {
     return $("#txtUsername").val();
@@ -117,6 +303,39 @@ function getDeckCountToStartGame() {
     return $("#txtDeckCount").val();
 }
 
+
+
+
+
+function getGameIdToJoinGame() {
+    return $("#txtGameId").val();
+}
+
+
+
+
+function incrOngoingCallCount() {
+    var val = $("#txtOngoingCallCount").html();
+    val = parseInt(val) + 1;
+    $("#txtOngoingCallCount").html(val.toString());
+}
+
+function decrOngoingCallCount() {
+    var val = $("#txtOngoingCallCount").html();
+    val = parseInt(val) - 1;
+    $("#txtOngoingCallCount").html(val.toString());
+}
+
+
+var autoRefreshDelay = 5000;
+function getGameRecursive() {
+    sequentialGet("/api/v1/games/" + getGameIdToJoinGame(), function(data) {
+        if (data != null)
+            updateGameModel(data);
+        // getGameRecursive();
+        setTimeout(getGameRecursive, autoRefreshDelay);
+    });
+}
 
 $(document).ready(function() {
 
@@ -184,4 +403,17 @@ $(document).ready(function() {
             alert("Game creation failed " + err);
         });
     });
+
+    $("#btnJoinGame").click(function() {
+        get("/api/v1/games/" + getGameIdToJoinGame(), function(data) {
+            alert("Game joining success");
+            updateGameModel(data);
+        }, function(err) {
+            alert("Game joining failed " + err);
+        });
+    });
+
+    getGameRecursive();
+
+    $("#btnCallLastCard").click(callLastCard);
 });

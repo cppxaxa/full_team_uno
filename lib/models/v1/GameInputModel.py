@@ -6,7 +6,6 @@ from lib.models.v1.CardModel import CardModel
 
 class GameInputModel(BaseModel):
     username: Optional[str] = ""
-    game_id: Optional[str] = ""
-    plays_card: Optional[CardModel] = None
+    plays_card_uid: Optional[str] = ""
     declares_last_card: Optional[bool] = False
     change_color_to: Optional[str] = ''

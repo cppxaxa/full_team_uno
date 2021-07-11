@@ -48,18 +48,6 @@ def get_all():
     resp = AllModel(version="1.0.0", deck_model=deck)
     return resp
 
-@mainApp.post("/api/v1/process")
-def post_process(gameInput: GameInputModel):
-    engine = GameEngine()
-    data_store = getDataStore()
-    game_model = data_store.get_game_model(gameInput.game_id)
-    anychanges, game_model = engine.process(game_model, gameInput)
-
-    if anychanges:
-        data_store.save_game_model(game_model.game_id, game_model)
-    
-    return data_store.get_game_model(gameInput.game_id)
-
 @mainApp.get("/api/v1/gamerooms")
 def get_game_rooms():
     data_store = getDataStore()
@@ -126,6 +114,18 @@ def update_game_with_updated_gameroom(game_id: str):
 def stop_game(game_id: str):
     # TODO Finish this implementation
     return "NotImplemented"
+
+@mainApp.post("/api/v1/games/{game_id}/process")
+def post_process(game_id: str, gameInput: GameInputModel):
+    engine = GameEngine()
+    data_store = getDataStore()
+    game_model = data_store.get_game_model(game_id)
+    anychanges, game_model = engine.process(game_model, gameInput)
+
+    if anychanges:
+        data_store.save_game_model(game_model.game_id, game_model)
+    
+    return data_store.get_game_model(game_model.game_id)
 
 @mainApp.get("/api/v1/games/byusername/{username}")
 def get_games(username: str):

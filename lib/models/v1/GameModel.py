@@ -24,7 +24,7 @@ class GameModel(BaseModel):
     cards_uid_used_map: Optional[dict] = {}
     cards_played_list: Optional[list] = []
     winner_id_list: Optional[list] = []
-    last_card_people: Optional[dict] = {}
+    last_card_people_map: Optional[dict] = {}
 
 # TODO Validation req. Finish this implementation
 
