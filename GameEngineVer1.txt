@@ -1,9 +1,5 @@
 
 
-Bug: After winning by index 0, whose_turn_index is wrongly set to "0"
-Bug: Power cards must not end the game e.g. Yellow +2
-
-
 if not user turn
 	return False
 
