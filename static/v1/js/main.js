@@ -170,8 +170,6 @@ function updateGameCurrentColor(color) {
 }
 
 
-// TODO Specify change color to 
-
 function getGameColorChoice() {
     return $("#selectNewColor").val();
 }

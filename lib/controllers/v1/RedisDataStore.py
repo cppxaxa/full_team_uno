@@ -7,7 +7,6 @@ from lib.controllers.v1.BaseDataStore import BaseDataStore
 import json
 import redis
 
-# TODO Finish this implementation
 
 class RedisDataStore(BaseDataStore):
 

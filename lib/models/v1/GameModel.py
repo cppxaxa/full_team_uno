@@ -28,7 +28,6 @@ class GameModel(BaseModel):
     winner_id_list: Optional[list] = []
     last_card_people_map: Optional[dict] = {}
 
-# TODO Validation req. Finish this implementation
 
     def initialize(self, game_room: GameRoomModel, deck_count):
         self.game_id = self.id_generator()
@@ -55,9 +54,9 @@ class GameModel(BaseModel):
         self.assign_cards(game_room.participants, self.cards_uid_used_map)
 
         
-    # TODO Fix this
+    # TODO Fix this - Done
     def id_generator(size=15, chars=string.ascii_uppercase + string.digits):
-        return '123456789012345'
+        # return '123456789012345'
         return ''.join(random.choice(chars) for _ in range(size))
     
     def populate_participants(self, participant_list):
@@ -91,7 +90,7 @@ class GameModel(BaseModel):
         
             if total_unused_card_count < card_count:
                 count = self._free_up_unallocated_played_card()
-                if count < card_count:
+                if total_unused_card_count + count < card_count:
                     raise("Scanning unallocated cards gave less than " + card_count)
             else:
                 self.assign_cards([username], self.cards_uid_used_map, card_count=card_count, reset_existing=False)
@@ -99,9 +98,21 @@ class GameModel(BaseModel):
         return self
 
 
-    # TODO Complete the function
     def _free_up_unallocated_played_card(self):
-        count = 0
+        leave_count = 1
+        count = len(self.cards_played_sequence) - leave_count
+
+        if count <= 0:
+            return count
+
+        cards = self.cards_played_sequence[0:count]
+
+        for card in cards:
+            self.cards_uid_used_map[card['unique_id']] = False
+            self.cards_played_map[card['unique_id']] = False
+        
+        self.cards_played_sequence = self.cards_played_sequence[count: len(self.cards_played_sequence)]
+        self.participants_played_sequence = self.participants_played_sequence[count: len(self.participants_played_sequence)]
 
         return count
 

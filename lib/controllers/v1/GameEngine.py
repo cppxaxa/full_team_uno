@@ -6,8 +6,6 @@ from lib.models.v1.CardModel import CardModel
 
 class GameEngine:
 
-# TODO Finish this implementation
-
     def process(self, gameModel: GameModel, input: GameInputModel):
         if not self._is_rightful_player(gameModel, input):
             return False, gameModel
