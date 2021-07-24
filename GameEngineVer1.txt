@@ -1,0 +1,85 @@
+
+
+Bug: After winning by index 0, whose_turn_index is wrongly set to "0"
+Bug: Power cards must not end the game e.g. Yellow +2
+
+
+if not user turn
+	return False
+
+if card = last card and number of cards == 2
+	set last card, add user to list
+	return True
+
+if card is wild:
+	set new current color
+	processCard()
+	return True
+	
+if card color != current color
+	if no current color card present
+		processCard()
+		return True
+	else if card number = last card number:
+		processCard()
+		return True
+	else:
+		return False
+else:
+	processCard()
+	return True
+
+
+
+
+
+def processCard()
+	nextPerson = based on direction
+	if is_reverse:
+		direction = toggle direction
+		nextPerson = based on direction
+	
+	if is_skip:
+		nextPerson = nextPerson + based on direction
+	
+	if is_draw_2:
+		cards = get 2 random cards
+		addCardsToPerson(cards, nextPerson)
+	
+	if is_draw_4:
+		cards = get 4 random cards
+		addCardsToPerson(cards, nextPerson)
+		
+	if user not in last card participants:
+		and if len(availableCards) == 1:
+			cards = get 2 random cards
+			addCardsToPerson(cards, user)
+
+	if user in last card participants:
+		and if card is_wild or is_2 or is_4 or is_rev or is_skip:
+			cards = get 2 random cards
+			addCardsToPerson(cards, user)
+	
+	removeCardFromPerson()
+	set gameModel current card color = card.color
+	
+	if len of cards of user == 0:
+		if card is normal:
+			add user to winner list
+			remove user from participants list
+			remove user from last card list
+		else:
+			add 2 new penalty cards
+	
+	if user cards > 1:
+		if user in last cards list:
+			remove user from last card list
+	
+	setNextPerson(nextPerson)
+	
+	
+if no new cards are available:
+	mark used cards as unused except last card
+	
+	re-use
+

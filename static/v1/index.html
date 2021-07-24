@@ -30,11 +30,12 @@
             <input id="btnGameRoom001" type="button" value="GR001" />
         </p> -->
         <br/><br/>
-        Participants <input id="btnRefreshGameRoom" type="button" value="Refresh" />
-        <p id="txtParticipants">
-            &nbsp;
-        </p>
         <div class="adminBlock">
+            Participants <input id="btnRefreshGameRoom" type="button" value="Refresh" />
+            <p id="txtParticipants">
+                &nbsp;
+            </p>
+            
             <input id="txtDeckCount" placeholder="deck count" value="2" />
             <input id="btnStartGame" type="button" value="Start Game" />
         </div>
@@ -57,6 +58,12 @@
         </p>
         <br/>
         Current color <span id="txtCurrentColor"><span style="background: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+        <br/>
+        Last card <div id="divGameLastCard" style="width: 100%;">
+            <div class="card-des card-w">-1</div>
+        </div>
+        <br/>
+        Last card played by (<span id="txtLastCardPlayedBy"></span>)
         <br/><br/>
         User cards <input id="btnCallLastCard" type="button" value="Call Last Card" />
         <br/>
@@ -67,7 +74,7 @@
             <option value="y">Yellow</option>
             <option value="g">Green</option>
         </select>
-        <br/>
+        <br/><br/>
         <div id="divUserCardList" style="width: 100%;">
             <div class="card-des card-r">0</div>
             <div class="card-des card-g">0</div>

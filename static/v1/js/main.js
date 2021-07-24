@@ -49,11 +49,18 @@ function post(url, inputData, callbackSuccess, callbackError) {
         },
         fail: function(err) {
             decrOngoingCallCount();
-            console.log("[ERROR] post", complete_url, inputData);
+            console.log("[FAIL] post", complete_url, inputData, "response", err);
             if (callbackError) {
                 callbackError(err);
             }
-        }
+        },
+        error: function(err) {
+            decrOngoingCallCount();
+            console.log("[ERROR] post", complete_url, inputData, "response", err);
+            if (callbackError) {
+                callbackError(err.responseJSON);
+            }
+        },
     });
 }
 
@@ -188,8 +195,10 @@ function cardCallback(unique_id, is_wild) {
         "change_color_to": change_color_to
     }, function(data) {
         alert("Card played successfully ");
+        updateGameModel(data);
     }, function(err) {
-        alert("Card playing failed " + err);
+        alert("Card playing failed ");
+        updateGameModel(err);
     });
 }
 
@@ -201,8 +210,10 @@ function callLastCard() {
         "change_color_to": ""
     }, function(data) {
         alert("Calling last card success ");
+        updateGameModel(data);
     }, function(err) {
         alert("Calling last card failed " + err);
+        updateGameModel(err);
     });
 }
 
@@ -233,6 +244,59 @@ function updateGameCard(cards_sequence, cards_uid_index_map, user_card_uid_list)
     console.log("User cards", userCards);
 }
 
+function updateWithDummyGameCards() {
+    var cardTemplate = '<div class="card-des card-{{color}}" card-id="{{card-id}}" onclick="cardCallback(\'{{card-id}}\', {{is-wild}});">{{text}}</div>';
+    var tagList = [];
+    var userCards = [];
+    var user_card_list = [
+        {unique_id: "", is_wild: false, color: 'r'},
+        {unique_id: "", is_wild: false, color: 'g'},
+        {unique_id: "", is_wild: false, color: 'b'},
+        {unique_id: "", is_wild: false, color: 'y'}
+    ];
+    for (var card of user_card_list) {
+        userCards.push(card);
+
+        var number = 0;
+        var color = card.is_wild ? "w" : card.color;
+        var val = cardTemplate.replace("{{color}}", color).replace("{{text}}", number);
+        val = val.replace("{{card-id}}", card.unique_id);
+        val = val.replace("{{card-id}}", card.unique_id);
+        val = val.replace("{{is-wild}}", card.is_wild.toString());
+        tagList.push(val);
+    }
+    $("#divUserCardList").html(tagList.join(""));
+    console.log("User cards", userCards);
+}
+
+function updateWithWinnerGameCards() {
+    var color_list = ['r', 'g', 'b', 'y', 'w'];
+    var cardTemplate = '<div class="card-des card-{{color}}" card-id="{{card-id}}" onclick="cardCallback(\'{{card-id}}\', {{is-wild}});">{{text}}</div>';
+    var tagList = [];
+    var userCards = [];
+    var user_card_list = [
+        {unique_id: "", is_wild: false, number: 'W'},
+        {unique_id: "", is_wild: false, number: 'I'},
+        {unique_id: "", is_wild: false, number: 'N'},
+        {unique_id: "", is_wild: false, number: 'N'},
+        {unique_id: "", is_wild: false, number: 'E'},
+        {unique_id: "", is_wild: false, number: 'R'}
+    ];
+    for (var card of user_card_list) {
+        userCards.push(card);
+
+        var number = card.number.toString();
+        var color = color_list[Math.floor(Math.random()*color_list.length)];;
+        var val = cardTemplate.replace("{{color}}", color).replace("{{text}}", number);
+        val = val.replace("{{card-id}}", card.unique_id);
+        val = val.replace("{{card-id}}", card.unique_id);
+        val = val.replace("{{is-wild}}", card.is_wild.toString());
+        tagList.push(val);
+    }
+    $("#divUserCardList").html(tagList.join(""));
+    console.log("User cards", userCards);
+}
+
 function updateGameDeckCount(deck_count) {
     $("#txtGameDeckCount").html(deck_count);
 }
@@ -244,12 +308,53 @@ function updateUsersWithLastCard(last_card_people_map) {
     $("#txtUsersWithLastCard").html(userlist.length > 0 ? userlist.join(", ") : "N/A");
 }
 
+function updateGameLastCard(cards_sequence) {
+    var cardTemplate = '<div class="card-des card-{{color}}" card-id="{{card-id}}" onclick="cardCallback(\'{{card-id}}\', {{is-wild}});">{{text}}</div>';
+    if (cards_sequence.length == 0) return;
+
+    var idx = cards_sequence.length - 1;
+    var card = cards_sequence[idx];
+
+    var number = card.number.toString();
+    if (card.is_draw_2) number = "+2";
+    if (card.is_draw_4) number = "+4";
+    if (card.is_reverse) number = "rev- erse";
+    if (card.is_skip) number = "skip";
+    if (number == "-1") number = "chg. color";
+    
+    var color = card.is_wild ? "w" : card.color;
+    var val = cardTemplate.replace("{{color}}", color).replace("{{text}}", number);
+    val = val.replace("{{card-id}}", card.unique_id);
+    val = val.replace("{{card-id}}", card.unique_id);
+    val = val.replace("{{is-wild}}", card.is_wild.toString());
+    
+    $("#divGameLastCard").html(val);
+    console.log("Last card", card);
+}
+
+function updateLastCardPlayedBy(participants_played_sequence) {
+    if (participants_played_sequence.length == 0) return;
+    var participant = participants_played_sequence[participants_played_sequence.length - 1];
+    $("#txtLastCardPlayedBy").html(participant);
+}
+
 function updateGameModel(gameModel) {
+    if (getUsernameForLogin() in gameModel.participants_id_cards_map) {
+        updateGameCard(gameModel.cards_sequence, gameModel.cards_uid_index_map, gameModel.participants_id_cards_map[getUsernameForLogin()]);
+    }
+    else if (gameModel.winner_id_list.includes(getUsernameForLogin())) {
+        updateWithWinnerGameCards();
+    }
+    else {
+        updateWithDummyGameCards();
+    }
+
+    updateLastCardPlayedBy(gameModel.participants_played_sequence);
+    updateGameLastCard(gameModel.cards_played_sequence);
     updateGameStatus(gameModel.game_ended ? "FINISHED": "UNFINISHED");
     updateGameWinners(gameModel.winner_id_list);
     updateGameParticipantSequence(gameModel.participants_index_id_map, gameModel.whose_turn_index, gameModel.forward_direction);
     updateGameCurrentColor(gameModel.current_color);
-    updateGameCard(gameModel.cards_sequence, gameModel.cards_uid_index_map, gameModel.participants_id_cards_map[getUsernameForLogin()]);
     updateGameDeckCount(gameModel.deck_count);
     updateUsersWithLastCard(gameModel.last_card_people_map);
 }

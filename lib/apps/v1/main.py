@@ -10,7 +10,7 @@ from lib.models.v1.CreateGameRoomModel import CreateGameRoomModel
 from lib.models.v1.GameModel import GameModel
 from lib.models.v1.GameInputModel import GameInputModel
 from lib.models.v1.DeckModel import DeckModel
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.staticfiles import StaticFiles
 
 from lib.models.v1.AllModel import AllModel
@@ -116,14 +116,16 @@ def stop_game(game_id: str):
     return "NotImplemented"
 
 @mainApp.post("/api/v1/games/{game_id}/process")
-def post_process(game_id: str, gameInput: GameInputModel):
+def post_process(game_id: str, gameInput: GameInputModel, response: Response):
     engine = GameEngine()
     data_store = getDataStore()
     game_model = data_store.get_game_model(game_id)
     anychanges, game_model = engine.process(game_model, gameInput)
 
     if anychanges:
-        data_store.save_game_model(game_model.game_id, game_model)
+        data_store.set_game_model(game_model)
+    else:
+        response.status_code = status.HTTP_400_BAD_REQUEST
     
     return data_store.get_game_model(game_model.game_id)
 
